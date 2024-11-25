@@ -42,3 +42,23 @@ export const listPhotos = query({
       .collect();
   },
 });
+
+export const addToFavorites = mutation({
+  args: {
+    photoId: v.id("photos"),
+  },
+
+  async handler(ctx, args) {
+    const { photoId } = args;
+
+    const photo = await ctx.db.get(photoId);
+
+    if (!photo) {
+      throw new Error("Photo not found");
+    }
+
+    await ctx.db.patch(photoId, {
+      favorite: !photo.favorite,
+    });
+  },
+});

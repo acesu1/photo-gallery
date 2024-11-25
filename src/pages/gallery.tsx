@@ -1,10 +1,12 @@
 import { useMutation, useQuery } from "convex/react";
 import { api } from "../../convex/_generated/api";
 import { ChangeEvent } from "react";
+import { Heart } from "lucide-react";
 
 export function Gallery() {
   const uploadPhoto = useMutation(api.photos.uploadPhoto);
   const photos = useQuery(api.photos.listPhotos);
+  const favorite = useMutation(api.photos.addToFavorites);
 
   async function handleUploadPhoto(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
@@ -23,8 +25,7 @@ export function Gallery() {
           uploadedAt: Date.now(),
         };
 
-        const id = await uploadPhoto(photo);
-        console.log("Photo uploaded with ID:", id);
+        await uploadPhoto(photo);
       }
     };
 
@@ -47,7 +48,7 @@ export function Gallery() {
         {photos?.map((photo) => (
           <div
             key={photo._id}
-            className="overflow-hidden rounded-lg bg-gray-200 shadow-lg"
+            className="relative overflow-hidden rounded-lg bg-gray-200 shadow-lg"
           >
             <img
               src={photo.data}
@@ -55,6 +56,10 @@ export function Gallery() {
               width="300"
               height="200"
               className="h-80 w-full object-cover"
+            />
+            <Heart
+              onClick={() => favorite({ photoId: photo._id })}
+              className={`size-5 absolute top-2 right-2 ${photo.favorite === true ? "fill-red-600 text-red-600" : ""} hover:cursor-pointer hover:fill-red-600 hover:text-red-600`}
             />
           </div>
         ))}
